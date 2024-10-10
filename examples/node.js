@@ -9,7 +9,10 @@ const PUBLIC_KEY = process.env.PUBLIC_KEY;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const MARTA_API_KEY = process.env.MARTA;
 const RPC_URI = process.env.BASE_TESTNET_URI
-
+const node_hostname = process.env.NODE_HOSTNAME;
+const node_port = process.env.NODE_PORT;
+const rpc_uri = process.env.BASE_TESTNET_URI;
+console.log(`RPC URI: ${rpc_uri} ${node_hostname}`);
 const DkgClient = new DKG({
     environment: 'testnet',
     endpoint: OT_NODE_HOSTNAME,
@@ -134,19 +137,19 @@ async function createKnowledgeAsset(data) {
     console.log('======================== BID SUGGESTION CALCULATED');
     console.log(bidSuggestion);
 
-    // // Increase the allowance if necessary
-    // const increaseAllowanceResult = await DkgClient.asset.increaseAllowance(bidSuggestion);
-    // divider();
-    // console.log('======================== ALLOWANCE INCREASED');
-    // console.log(increaseAllowanceResult);
-    //
-    // // Create the asset on the OriginTrail network
-    // const createAssetResult = await DkgClient.asset.create({ public: jsonLdData }, { epochsNum: 2 });
-    // divider();
-    // console.log('======================== ASSET CREATED');
-    // console.log(createAssetResult);
-    //
-    // return createAssetResult;
+    // Increase the allowance if necessary
+    const increaseAllowanceResult = await DkgClient.asset.increaseAllowance(bidSuggestion);
+    divider();
+    console.log('======================== ALLOWANCE INCREASED');
+    console.log(increaseAllowanceResult);
+
+    // Create the asset on the OriginTrail network
+    const createAssetResult = await DkgClient.asset.create({ public: jsonLdData }, { epochsNum: 2 });
+    divider();
+    console.log('======================== ASSET CREATED');
+    console.log(createAssetResult);
+
+    return createAssetResult;
 }
 
 async function main() {
