@@ -1,14 +1,15 @@
-require('dotenv').config(); // Load environment variables from .env
+require('dotenv').config({ path: '../.env' });  // Load environment variables from .env
 const fs = require('fs');
 const path = require('path');
 const DKG = require('dkg.js');
-const { v5: uuidv5 } = require('uuid');
+const crypto = require('crypto');
 
 // Load environment variables
 const node_hostname = process.env.NODE_HOSTNAME;
 const node_port = process.env.NODE_PORT;
 const rpc_uri = process.env.BASE_TESTNET_URI;
-console.log(`RPC URI: ${rpc_uri} ${node_hostname}`);
+
+
 
 // Load private and public keys from the environment
 const keyPairs = [
@@ -68,22 +69,11 @@ const loadCSVFiles = (folderPath) => {
     return combinedData;
 };
 
-
-
-// Use the DNS namespace (the same as uuid.NAMESPACE_DNS in Python)
-//const DNS_NAMESPACE = uuidv5.URL; // This is the closest equivalent to Python's uuid.NAMESPACE_DNS
-
-const crypto = require('crypto');
-
 // Generate a unique ID based on selected values using SHA-256 hashing
 const generateUniqueId = (first_name, last_name, email, gender, ip_address) => {
     const randomString = `${first_name}_${last_name}_${email}_${gender}_${ip_address}`;
-
-    // Generate a SHA-256 hash of the concatenated string
     return crypto.createHash('sha256').update(randomString).digest('hex');
 };
-
-
 
 // Randomly select values from each column
 const generateRandomRecord = (df) => {
@@ -130,10 +120,22 @@ const uploadKnowledgeAssetWithIncrease = async (jsonLdData, publicKey, privateKe
         const formattedAssertions = await dkgClient.assertion.formatGraph({ public: jsonLdData });
         console.log('======================== ASSET FORMATTED');
 
-        // Calculate the bid suggestion for the asset
+        // Calculate Merkle Root (Public Assertion ID)
         const publicAssertionId = await dkgClient.assertion.getPublicAssertionId({ public: jsonLdData });
+        console.log('======================== PUBLIC ASSERTION ID (MERKLE ROOT) CALCULATED');
+        console.log(publicAssertionId);
+
+        // Get the size of the assertion
         const publicAssertionSize = await dkgClient.assertion.getSizeInBytes({ public: jsonLdData });
-        const bidSuggestion = await dkgClient.network.getBidSuggestion(publicAssertionId, publicAssertionSize, { epochsNum: 1 });
+        console.log('======================== PUBLIC ASSERTION SIZE CALCULATED');
+        console.log(publicAssertionSize);
+
+        // Get bid suggestion for asset creation
+        const bidSuggestion = await dkgClient.network.getBidSuggestion(
+            publicAssertionId,
+            publicAssertionSize,
+            { epochsNum: 1 }
+        );
         console.log('======================== BID SUGGESTION CALCULATED');
         console.log(bidSuggestion);
 
@@ -142,11 +144,11 @@ const uploadKnowledgeAssetWithIncrease = async (jsonLdData, publicKey, privateKe
         console.log(`Current allowance: ${currentAllowance}`);
 
         // Increase allowance if below bid suggestion
-        if (currentAllowance < bidSuggestion) {
-            console.log(`Increasing allowance by ${bidSuggestion - currentAllowance}`);
-            await dkgClient.asset.increaseAllowance(bidSuggestion);
-            console.log('======================== ALLOWANCE INCREASED');
-        }
+        // if (currentAllowance < bidSuggestion) {
+        //     console.log(`Increasing allowance by ${bidSuggestion - currentAllowance}`);
+        //     await dkgClient.asset.increaseAllowance(bidSuggestion);
+        //     console.log('======================== ALLOWANCE INCREASED');
+        // }
 
         // Create the asset after increasing allowance
         const createAssetResult = await dkgClient.asset.create({ public: jsonLdData }, { epochsNum: 1 });
@@ -172,6 +174,7 @@ const main = async () => {
         const { publicKey, privateKey } = keyPairs[threadId];
         const randomRecord = generateRandomRecord(df);
         randomRecord.id = generateUniqueId(randomRecord.first_name, randomRecord.last_name, randomRecord.email, randomRecord.gender, randomRecord.ip_address);
+        console.log(randomRecord);  // Print record for debugging
         const jsonLdData = createJsonLD(randomRecord);
         await uploadKnowledgeAssetWithIncrease(jsonLdData, publicKey, privateKey);
     };

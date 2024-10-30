@@ -3,10 +3,13 @@ require('dotenv').config({ path: '../.env' }); // Load environment variables fro
 const DKG = require('dkg.js'); // Load the DKG.js package
 
 // Load environment variables
-const OT_NODE_HOSTNAME = process.env.NODE_HOSTNAME;
+
 const OT_NODE_PORT = process.env.NODE_PORT;
-const PUBLIC_KEY = process.env.PUBLIC_KEY;
-const PRIVATE_KEY = process.env.PRIVATE_KEY;
+
+
+const PUBLIC_KEY = "0x87803385D2bCe9cbc7c532AD7ab2B9C665C2023E"
+const PRIVATE_KEY = "58c3328907229f8cfade1aa2801ece09406bbf1cff2c8bcea402504ba28a9049"
+const OT_NODE_HOSTNAME = "http://134.122.115.137"
 
 console.log('OT_NODE_HOSTNAME:', OT_NODE_HOSTNAME);
 console.log('OT_NODE_PORT:', OT_NODE_PORT);

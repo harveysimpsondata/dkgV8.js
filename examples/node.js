@@ -9,10 +9,7 @@ const PUBLIC_KEY = process.env.PUBLIC_KEY;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const MARTA_API_KEY = process.env.MARTA;
 const RPC_URI = process.env.BASE_TESTNET_URI
-const node_hostname = process.env.NODE_HOSTNAME;
-const node_port = process.env.NODE_PORT;
-const rpc_uri = process.env.BASE_TESTNET_URI;
-console.log(`RPC URI: ${rpc_uri} ${node_hostname}`);
+
 const DkgClient = new DKG({
     environment: 'testnet',
     endpoint: OT_NODE_HOSTNAME,
